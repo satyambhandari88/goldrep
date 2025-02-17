@@ -1,0 +1,99 @@
+/* ✅ Container for the entire section */
+.preorder-container {
+    max-width: 100%;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* ✅ Search Bar Styling */
+  .search-bar {
+    width: 300px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  /* ✅ Add Button Styling */
+  .add-button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  
+  /* ✅ Table Container (Scrollable) */
+  .table-container {
+    max-height: 400px; /* ✅ Set max height for scrolling */
+    overflow-y: auto; /* ✅ Enables vertical scrolling */
+    border-radius: 5px;
+  }
+  
+  /* ✅ Table Styling */
+  .preorder-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  /* ✅ Fixed Header Styling */
+  .preorder-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  /* ✅ Table Header */
+  .preorder-table th {
+    padding: 12px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+  }
+  
+  /* ✅ Table Row Styling */
+  .preorder-table td {
+    padding: 10px;
+    text-align: left;
+  }
+
+
+
+  h2{
+    display: inline-block;
+  }
+  
+
+  .download-button{
+    width: 150px;
+    margin: 2px;
+  }
+
+  .add-button{
+    width: 150px;
+    
+  }
+
+  .heading{
+    display: flex;
+    justify-content: space-between;
+
+  }
+  
+  
+ 
+  
+  /* ✅ Responsive Styling */
+  @media (max-width: 768px) {
+    .search-bar {
+      width: 100%;
+    }
+    .table-container {
+      max-height: 300px;
+    }
+  }
+  

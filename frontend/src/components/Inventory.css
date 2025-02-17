@@ -1,0 +1,85 @@
+.inventory-container {
+    background: #1e1e1e;
+    color: #ffd700;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.3);
+  }
+  
+  .toggle-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .toggle-buttons button {
+    background: #444;
+    color: white;
+    padding: 10px 20px;
+    margin: 5px;
+    border: 1px solid #ffd700;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .toggle-buttons .active {
+    background: #ffd700;
+    color: black;
+  }
+  
+  .inventory-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #222;
+  }
+  
+  .inventory-table th, .inventory-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ffd700;
+  }
+  
+  .inventory-table th {
+    background: #444;
+  }
+  
+  .edit-btn, .delete-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .edit-btn {
+    background: #27ae60;
+    color: white;
+  }
+  
+  .edit-btn:hover {
+    background: #219150;
+  }
+  
+  .delete-btn {
+    background: #c0392b;
+    color: white;
+  }
+  
+  .delete-btn:hover {
+    background: #a93226;
+  }
+  
+  .add-item-btn {
+    background: #ffd700;
+    color: black;
+    padding: 10px;
+    margin-top: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .add-item-btn:hover {
+    background: #e6b800;
+  }
+  
