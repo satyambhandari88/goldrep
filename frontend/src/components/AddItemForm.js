@@ -21,12 +21,12 @@ const AddItemForm = ({ setShowForm, editingItem, onItemAdded }) => {
 
       if (editingItem) {
         await axios.put(
-          `http://localhost:5000/api/inventory/update/${editingItem._id}`,
+          `https://goldrep-1.onrender.com/api/inventory/update/${editingItem._id}`,
           formData,
           config
         );
       } else {
-        await axios.post("http://localhost:5000/api/inventory/add", formData, config);
+        await axios.post("https://goldrep-1.onrender.com/api/inventory/add", formData, config);
       }
       onItemAdded();
       setShowForm(false);
