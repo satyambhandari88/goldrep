@@ -18,7 +18,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://www.goldrep.shop", // Replace with your frontend URL
+    origin: "https://www.goldrep.shop",http://localhost:3000, // Replace with your frontend URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
