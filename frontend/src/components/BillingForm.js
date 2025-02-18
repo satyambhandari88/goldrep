@@ -210,7 +210,7 @@ const BillingForm = () => {
     };
 
     try {
-        const response = await axios.post('http://localhost:5000/api/billing/create', billData, {
+        const response = await axios.post('https://goldrep-1.onrender.com/api/billing/create', billData, {
             headers: { Authorization: `Bearer ${token}` },
         });
 
