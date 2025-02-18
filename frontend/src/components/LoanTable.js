@@ -14,7 +14,7 @@ const LoanTable = () => {
     const fetchLoans = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/loans/all", {
+        const response = await axios.get("https://goldrep-1.onrender.com/api/loans/all", {
           headers: { Authorization: `Bearer ${token}` },
         });
   
