@@ -31,7 +31,7 @@ const Register = () => {
 
     try {
       const { confirmPassword, ...submitData } = formData;
-      await axios.post('http://localhost:5000/api/auth/register', submitData);
+      await axios.post('https://goldrep-1.onrender.com/api/auth/register', submitData);
       navigate('/login');
     } catch (error) {
       setError(error.response?.data?.message || 'Registration failed');
