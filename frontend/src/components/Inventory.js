@@ -17,7 +17,7 @@ const Inventory = () => {
   useEffect(() => {
     const fetchInventory = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/inventory/all');
+        const response = await axios.get('https://goldrep-1.onrender.com/api/inventory/all');
         setGoldInventory(response.data.filter((item) => item.material === "Gold"));
         setSilverInventory(response.data.filter((item) => item.material === "Silver"));
       } catch (error) {
@@ -32,7 +32,7 @@ const Inventory = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/inventory/delete/${id}`);
+      await axios.delete(`https://goldrep-1.onrender.com/api/inventory/delete/${id}`);
       setGoldInventory(goldInventory.filter((item) => item._id !== id));
       setSilverInventory(silverInventory.filter((item) => item._id !== id));
     } catch (error) {
