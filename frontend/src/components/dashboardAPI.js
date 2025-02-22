@@ -4,7 +4,7 @@ import { authService } from './services/authService';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: 'https://goldrep-1.onrender.com/api/dashboard'
+  baseURL: 'http://localhost:5000/api/dashboard'
 });
 
 // Add request interceptor to add auth token

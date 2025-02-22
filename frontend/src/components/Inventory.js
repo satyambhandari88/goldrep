@@ -7,9 +7,9 @@ const Inventory = () => {
   const [activeTab, setActiveTab] = useState("Gold");
   const [goldInventory, setGoldInventory] = useState([]);
   const [silverInventory, setSilverInventory] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // ✅ Search Bar State
+  const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
+  const [editingItem, setEditingItem] = useState(null); // Track the item being edited
 
   const token = localStorage.getItem('token');
   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -17,7 +17,7 @@ const Inventory = () => {
   useEffect(() => {
     const fetchInventory = async () => {
       try {
-        const response = await axios.get('https://goldrep-1.onrender.com/api/inventory/all');
+        const response = await axios.get('http://localhost:5000/api/inventory/all');
         setGoldInventory(response.data.filter((item) => item.material === "Gold"));
         setSilverInventory(response.data.filter((item) => item.material === "Silver"));
       } catch (error) {
@@ -32,12 +32,31 @@ const Inventory = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`https://goldrep-1.onrender.com/api/inventory/delete/${id}`);
+      await axios.delete(`http://localhost:5000/api/inventory/delete/${id}`);
       setGoldInventory(goldInventory.filter((item) => item._id !== id));
       setSilverInventory(silverInventory.filter((item) => item._id !== id));
     } catch (error) {
       console.error("Error deleting item:", error);
     }
+  };
+
+  const handleEdit = (item) => {
+    setEditingItem(item); // Set the item to be edited
+    setShowForm(true); // Show the form
+  };
+
+  const handleItemAdded = () => {
+    // Refresh the inventory list after adding/editing an item
+    const fetchInventory = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/inventory/all');
+        setGoldInventory(response.data.filter((item) => item.material === "Gold"));
+        setSilverInventory(response.data.filter((item) => item.material === "Silver"));
+      } catch (error) {
+        console.error("Error fetching inventory:", error);
+      }
+    };
+    fetchInventory();
   };
 
   const filteredInventory = activeTab === "Gold"
@@ -47,21 +66,17 @@ const Inventory = () => {
   return (
     <div className="inventory-container">
       <div className="heading">
-      <h2>Inventory Management</h2>
-      
-      <div className="sub-heading">
-      <input 
-        type="text" 
-        placeholder="Search by Item Name..." 
-        value={searchTerm} 
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="search-bar"
-      />
-
-<button className="add-button" onClick={() => setShowForm(true)}>+ Add New Item</button>
-
-{showForm && <AddItemForm setShowForm={setShowForm} editingItem={editingItem} />}
-      </div>
+        <h2>Inventory Management</h2>
+        <div className="sub-heading">
+          <input
+            type="text"
+            placeholder="Search by Item Name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-bar"
+          />
+          <button className="add-button" onClick={() => { setEditingItem(null); setShowForm(true); }}>+ Add Item</button>
+        </div>
       </div>
 
       <div className="toggle-buttons">
@@ -70,34 +85,42 @@ const Inventory = () => {
       </div>
 
       <div className="table-container">
-        <table className="inventory-table">
-          <thead>
-            <tr>
-              <th>Item Name</th>
-              <th>Category</th>
-              <th>Material</th>
-              <th>{activeTab === "Gold" ? "Karat" : "Weight (g)"}</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredInventory.map((item) => (
-              <tr key={item._id}>
-                <td>{item.itemName}</td>
-                <td>{item.category}</td>
-                <td>{item.material}</td>
-                <td>{activeTab === "Gold" ? `${item.karat}K` : `${item.weight}g`}</td>
-                <td>
-                  <button className="edit-btn" onClick={() => setEditingItem(item)}>Edit</button>
-                  <button className="delete-btn" onClick={() => handleDelete(item._id)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+  <table className="inventory-table">
+    <thead>
+      <tr>
+        <th>Item Name</th>
+        <th>Category</th>
+        <th>Material</th>
+        {activeTab === "Gold" && <th>Karat</th>} {/* Show Karat only for Gold */}
+        <th>Weight (g)</th> {/* Always show Weight */}
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {filteredInventory.map((item) => (
+        <tr key={item._id}>
+          <td>{item.itemName}</td>
+          <td>{item.category}</td>
+          <td>{item.material}</td>
+          {activeTab === "Gold" && <td>{item.karat}K</td>} {/* Show Karat only for Gold */}
+          <td>{item.weight}g</td> {/* Always show Weight */}
+          <td>
+            <button className="edit-btn" onClick={() => handleEdit(item)}>Edit</button>
+            <button className="delete-btn" onClick={() => handleDelete(item._id)}>Delete</button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
-      
+      {showForm && (
+        <AddItemForm
+          setShowForm={setShowForm}
+          editingItem={editingItem}
+          onItemAdded={handleItemAdded}
+        />
+      )}
     </div>
   );
 };

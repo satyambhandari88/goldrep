@@ -23,7 +23,7 @@ const PreorderDetails = () => {
           throw new Error("No authentication token found");
         }
 
-        const response = await axios.get(`https://goldrep-1.onrender.com/api/preorders/${id}`, {
+        const response = await axios.get(`http://localhost:5000/api/preorders/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -75,7 +75,7 @@ const PreorderDetails = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        `https://goldrep-1.onrender.com/api/preorders/pay/${id}`,
+        `http://localhost:5000/api/preorders/pay/${id}`,
         { amount: parseFloat(paymentAmount) }, // ✅ Ensure it's sent as a number
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -96,7 +96,7 @@ const PreorderDetails = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `https://goldrep-1.onrender.com/api/preorders/complete/${id}`,
+        `http://localhost:5000/api/preorders/complete/${id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -119,7 +119,7 @@ const PreorderDetails = () => {
     }
   
     // ✅ Open invoice with token in URL
-    window.open(`https://goldrep-1.onrender.com/api/preorders/invoice/${id}?token=${token}`, "_blank");
+    window.open(`http://localhost:5000/api/preorders/invoice/${id}?token=${token}`, "_blank");
   };
 
   // Utility function to generate a well-styled detailed PDF
@@ -196,7 +196,7 @@ const downloadPreorderDetailsPDF = () => {
       <p><strong>Name:</strong> {preorder.customerName}</p>
       <p><strong>Phone:</strong> {preorder.customerPhone}</p>
       <p><strong>Address:</strong> {preorder.customerAddress}</p>
-      {preorder.customerImage && <img src={`https://goldrep-1.onrender.com${preorder.customerImage}`} alt="Customer" width="200" />}
+      {preorder.customerImage && <img src={`http://localhost:5000${preorder.customerImage}`} alt="Customer" width="200" />}
 
       <h3>Item Details</h3>
       <p><strong>Item:</strong> {preorder.itemName}</p>
@@ -206,7 +206,7 @@ const downloadPreorderDetailsPDF = () => {
       <p><strong>Price per Gram:</strong> ₹{preorder.pricePerGram}</p>
       <p><strong>Making Charges per Gram:</strong> ₹{preorder.makingChargesPerGram}</p>
       <p><strong>Description:</strong> {preorder.description}</p>
-      {preorder.itemImage && <img src={`https://goldrep-1.onrender.com${preorder.itemImage}`} alt="Item" width="200" />}
+      {preorder.itemImage && <img src={`http://localhost:5000${preorder.itemImage}`} alt="Item" width="200" />}
 
       <h3>Order Dates</h3>
       <p><strong>Preorder Date:</strong> {new Date(preorder.date).toLocaleDateString()}</p>

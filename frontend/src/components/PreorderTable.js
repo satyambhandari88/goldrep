@@ -14,7 +14,7 @@ const PreorderTable = () => {
     const fetchPreorders = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("https://goldrep-1.onrender.com/api/preorders", {
+        const response = await axios.get("http://localhost:5000/api/preorders", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPreorders(response.data);
@@ -30,7 +30,7 @@ const PreorderTable = () => {
     if (window.confirm("Are you sure you want to delete this preorder?")) {
       try {
         const token = localStorage.getItem("token");
-        await axios.delete(`https://goldrep-1.onrender.com/api/preorders/${id}`, {
+        await axios.delete(`http://localhost:5000/api/preorders/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPreorders(preorders.filter((order) => order._id !== id));

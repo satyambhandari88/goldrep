@@ -17,6 +17,11 @@ body {
   }
 
 
+  .billing-form{
+    margin-top: 80px;
+  }
+
+
 
   .check-input-group {
     display: flex;

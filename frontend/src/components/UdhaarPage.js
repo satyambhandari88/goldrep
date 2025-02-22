@@ -19,7 +19,7 @@ const UdhaarPage = () => {
         const token = localStorage.getItem("token");
         console.log("Token exists:", !!token); // Check if token exists
         
-        const response = await axios.get("https://goldrep-1.onrender.com/api/udhaar/all", {
+        const response = await axios.get("http://localhost:5000/api/udhaar/all", {
           headers: {
             Authorization: `Bearer ${token}`
           }

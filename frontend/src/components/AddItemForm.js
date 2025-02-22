@@ -3,35 +3,54 @@ import axios from "axios";
 import './AddItemForm.css';
 
 const AddItemForm = ({ setShowForm, editingItem, onItemAdded }) => {
-    const [formData, setFormData] = useState(
-      editingItem || { itemName: "", category: "", material: "Gold", karat: "", weight: "", thresholdWeight: "" }
-    );
+  const [formData, setFormData] = useState(
+    editingItem || { itemName: "", category: "", material: "Gold", karat: "", weight: "", thresholdWeight: "" }
+  );
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "karat" || name === "weight" || name === "thresholdWeight" ? parseFloat(value) || "" : value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("User not authenticated. Please log in again.");
+        return;
+      }
+
       const config = {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       };
 
+      const requestData = { ...formData };
+
+      let response;
       if (editingItem) {
-        await axios.put(
-          `https://goldrep-1.onrender.com/api/inventory/update/${editingItem._id}`,
-          formData,
+        // Send a PUT request to update the item
+        response = await axios.put(
+          `http://localhost:5000/api/inventory/update/${editingItem._id}`,
+          requestData,
           config
         );
       } else {
-        await axios.post("https://goldrep-1.onrender.com/api/inventory/add", formData, config);
+        // Send a POST request to add a new item
+        response = await axios.post("http://localhost:5000/api/inventory/add", requestData, config);
       }
-      onItemAdded();
-      setShowForm(false);
+
+      console.log("✅ Response:", response.data);
+      onItemAdded(); // Refresh the inventory list
+      setShowForm(false); // Close the form
     } catch (error) {
-      console.error("Error adding/updating item:", error);
+      console.error("❌ Error:", error.response?.data || error.message);
     }
   };
 

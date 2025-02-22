@@ -27,7 +27,8 @@ const BillingForm = () => {
     category: '',
     weight: 0,
     pricePerGram: 0,
-    makingChargesPerGram: 0,
+    makingChargeValue: 0,
+    makingChargeType: 'perGram', // 'perGram' or 'percentage'
     inventoryItemId: '',
     total: 0,
   });
@@ -35,7 +36,6 @@ const BillingForm = () => {
   const [currentOldJewelry, setCurrentOldJewelry] = useState({
     type: 'Gold',
     weight: 0,
-    pricePerGram: 0,
     total: 0,
   });
 
@@ -46,7 +46,7 @@ const BillingForm = () => {
     const fetchInventoryItems = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('https://goldrep-1.onrender.com/api/inventory/all', {
+        const response = await axios.get('http://localhost:5000/api/inventory/all', {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         setInventoryItems(response.data);
@@ -67,39 +67,64 @@ const BillingForm = () => {
 
   const calculateItemTotal = (item) => {
     const basePrice = item.weight * item.pricePerGram;
-    const makingCharges = item.weight * item.makingChargesPerGram;
+    let makingCharges = 0;
+
+    if (item.makingChargeType === 'perGram') {
+      makingCharges = item.weight * item.makingChargeValue;
+    } else if (item.makingChargeType === 'percentage') {
+      makingCharges = (basePrice * item.makingChargeValue) / 100;
+    }
+
     return basePrice + makingCharges;
   };
 
   const addItem = () => {
+    // Validate required fields for current item
     if (!currentItem.itemName || !currentItem.weight || !currentItem.pricePerGram) {
       setError('Please fill all required item fields');
       return;
     }
-
+  
     const total = calculateItemTotal(currentItem);
-
-    const itemToAdd = { ...currentItem, total };
-    if (!itemToAdd.inventoryItemId) {
-      delete itemToAdd.inventoryItemId;
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      items: [...prev.items, itemToAdd],
-    }));
-
+    const newItem = {
+      ...currentItem,
+      total,
+      // Ensure all required fields are present and valid
+      itemName: currentItem.itemName.trim(),
+      weight: parseFloat(currentItem.weight),
+      pricePerGram: parseFloat(currentItem.pricePerGram),
+      type: currentItem.type || 'Gold',
+      category: currentItem.category || '',
+      makingChargeValue: parseFloat(currentItem.makingChargeValue) || 0,
+      makingChargeType: currentItem.makingChargeType || 'perGram'
+    };
+  
+    setFormData(prev => {
+      const updatedFormData = {
+        ...prev,
+        items: [...prev.items, newItem]
+      };
+      console.log("Items array after adding:", updatedFormData.items);
+      return updatedFormData;
+    });
+  
+    // Reset current item
     setCurrentItem({
       type: 'Gold',
       itemName: '',
       category: '',
       weight: 0,
       pricePerGram: 0,
-      makingChargesPerGram: 0,
+      makingChargeValue: 0,
+      makingChargeType: 'perGram',
       total: 0,
     });
+  
     setError('');
+    setSelectedInventoryItem('');
   };
+  
+  
 
   const removeItem = (index) => {
     setFormData((prev) => ({
@@ -109,20 +134,19 @@ const BillingForm = () => {
   };
 
   const addOldJewelry = () => {
-    if (!currentOldJewelry.weight || !currentOldJewelry.pricePerGram) {
+    if (!currentOldJewelry.weight || !currentOldJewelry.total) {
       setError('Please fill all required old jewelry fields');
       return;
     }
 
-    const total = currentOldJewelry.weight * currentOldJewelry.pricePerGram;
     setFormData((prev) => ({
       ...prev,
-      oldJewelry: [...prev.oldJewelry, { ...currentOldJewelry, total }],
+      oldJewelry: [...prev.oldJewelry, { ...currentOldJewelry }],
     }));
+    
     setCurrentOldJewelry({
       type: 'Gold',
       weight: 0,
-      pricePerGram: 0,
       total: 0,
     });
     setError('');
@@ -147,18 +171,44 @@ const BillingForm = () => {
   };
 
   const validateForm = () => {
-    if (!formData.customerName || !formData.customerPhone) {
+    // Add debugging logs
+    console.log("Validating form data:", {
+      customerName: formData.customerName,
+      customerPhone: formData.customerPhone,
+      items: formData.items
+    });
+
+    // Check customer details
+    if (!formData.customerName.trim() || !formData.customerPhone.trim()) {
       setError('Please fill all required customer details');
       return false;
     }
-    if (formData.items.length === 0) {
-      setError('Please add at least one item');
+
+    // Check items array
+    if (!Array.isArray(formData.items) || formData.items.length === 0) {
+      setError('Please add at least one item before generating the bill');
       return false;
     }
-    if (formData.paymentType === 'Udhaar' && !formData.paidAmount) {
-      setError('Please enter paid amount for Udhaar payment');
+
+    // Validate each item
+    const invalidItems = formData.items.filter(
+      item => !item.itemName || !item.weight || !item.pricePerGram
+    );
+    if (invalidItems.length > 0) {
+      setError('Some items have missing required fields');
       return false;
     }
+
+    // Check Udhaar payment details
+    if (formData.paymentType === 'Udhaar') {
+      if (formData.paidAmount === undefined || formData.paidAmount === null) {
+        setError('Please enter paid amount for Udhaar payment');
+        return false;
+      }
+    }
+
+    // Clear any existing error if validation passes
+    setError('');
     return true;
   };
 
@@ -188,64 +238,69 @@ const BillingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    console.log("Form submission initiated");
+    console.log("Current form data:", formData);
+    
+    if (!validateForm()) {
+      console.log("Form validation failed");
+      return;
+    }
 
     const token = localStorage.getItem('token');
     if (!token) {
-        navigate('/login');
-        return;
+      navigate('/login');
+      return;
     }
 
     setLoading(true);
     setError('');
 
-    // Ensure paidAmount is equal to grandTotal for Full Payment
     const totals = calculateTotals();
     const billData = {
-        ...formData,
-        ...totals,
-        paidAmount: formData.paymentType === 'Full' ? totals.grandTotal : formData.paidAmount, 
-        remainingAmount: formData.paymentType === 'Full' ? 0 : totals.grandTotal - formData.paidAmount,
-        status: formData.paymentType === 'Full' ? 'Paid' : formData.paidAmount > 0 ? 'Partial' : 'Pending',
+      ...formData,
+      ...totals,
+      paidAmount: formData.paymentType === 'Full' ? totals.grandTotal : formData.paidAmount,
+      remainingAmount: formData.paymentType === 'Full' ? 0 : totals.grandTotal - formData.paidAmount,
+      status: formData.paymentType === 'Full' ? 'Paid' : formData.paidAmount > 0 ? 'Partial' : 'Pending',
     };
 
     try {
-        const response = await axios.post('https://goldrep-1.onrender.com/api/billing/create', billData, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+      console.log("Sending bill data to server:", billData);
+      const response = await axios.post('http://localhost:5000/api/billing/create', billData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        const billId = response.data.bill._id;
-        const downloadUrl = `https://goldrep-1.onrender.com/api/billing/invoice/${billId}?token=${token}`;
-        window.open(downloadUrl, '_blank');
+      const billId = response.data.bill._id;
+      const downloadUrl = `http://localhost:5000/api/billing/invoice/${billId}?token=${token}`;
+      window.open(downloadUrl, '_blank');
 
-        setFormData({
-            customerName: '',
-            customerPhone: '',
-            customerAddress: '',
-            date: new Date().toISOString().split('T')[0],
-            items: [],
-            discount: 0,
-            oldJewelry: [],
-            paymentType: 'Full',
-            paidAmount: 0,
-            isGSTBill: false,
-        });
+      // Reset form after successful submission
+      setFormData({
+        customerName: '',
+        customerPhone: '',
+        customerAddress: '',
+        date: new Date().toISOString().split('T')[0],
+        items: [],
+        discount: 0,
+        oldJewelry: [],
+        paymentType: 'Full',
+        paidAmount: 0,
+        isGSTBill: false,
+      });
 
-        setError('');
     } catch (error) {
-        console.error('Error:', error.response?.data);
-        if (error.response?.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            navigate('/login');
-        } else {
-            setError(error.response?.data?.error || 'Failed to create bill');
-        }
+      console.error('Error creating bill:', error.response?.data);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+      } else {
+        setError(error.response?.data?.error || 'Failed to create bill');
+      }
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
-
+  };
   const totals = calculateTotals();
 
   return (
@@ -307,10 +362,11 @@ const BillingForm = () => {
             <option value="">Select from Inventory</option>
             {inventoryItems.map((item) => (
               <option key={item._id} value={item._id}>
-                {item.itemName} ({item.weight}g)
+                {item.itemName} - {item.category} - {item.material} ({item.weight}g)
               </option>
             ))}
           </select>
+
           <select
             value={currentItem.type}
             onChange={(e) => setCurrentItem((prev) => ({ ...prev, type: e.target.value }))}
@@ -318,40 +374,59 @@ const BillingForm = () => {
             <option value="Gold">Gold</option>
             <option value="Silver">Silver</option>
           </select>
+
           <input
             type="text"
             placeholder="Item Name *"
             value={currentItem.itemName}
             onChange={(e) => setCurrentItem((prev) => ({ ...prev, itemName: e.target.value }))}
           />
+          
           <input
             type="text"
             placeholder="Category"
             value={currentItem.category}
             onChange={(e) => setCurrentItem((prev) => ({ ...prev, category: e.target.value }))}
           />
+          
           <input
             type="number"
             placeholder="Weight (g) *"
             value={currentItem.weight || ''}
             onChange={(e) => setCurrentItem((prev) => ({ ...prev, weight: parseFloat(e.target.value) || 0 }))}
           />
+          
           <input
             type="number"
             placeholder="Price per gram *"
             value={currentItem.pricePerGram || ''}
             onChange={(e) => setCurrentItem((prev) => ({ ...prev, pricePerGram: parseFloat(e.target.value) || 0 }))}
           />
+
+          <select
+            value={currentItem.makingChargeType}
+            onChange={(e) => setCurrentItem((prev) => ({ ...prev, makingChargeType: e.target.value }))}
+          >
+            <option value="perGram">Making Charge per Gram</option>
+            <option value="percentage">Making Charge in %</option>
+          </select>
+
           <input
             type="number"
-            placeholder="Making charges per gram"
-            value={currentItem.makingChargesPerGram || ''}
-            onChange={(e) => setCurrentItem((prev) => ({ ...prev, makingChargesPerGram: parseFloat(e.target.value) || 0 }))}
+            placeholder={currentItem.makingChargeType === "perGram" ? "Making charges per gram" : "Making charge percentage"}
+            value={currentItem.makingChargeValue || ''}
+            onChange={(e) => setCurrentItem((prev) => ({ ...prev, makingChargeValue: parseFloat(e.target.value) || 0 }))}
           />
+
           <button type="button" onClick={addItem} className="add-button">
             Add Item
           </button>
         </div>
+
+
+
+
+
 
         <div className="items-list">
           {formData.items.map((item, index) => (
@@ -385,9 +460,9 @@ const BillingForm = () => {
           />
           <input
             type="number"
-            placeholder="Price per gram *"
-            value={currentOldJewelry.pricePerGram || ''}
-            onChange={(e) => setCurrentOldJewelry((prev) => ({ ...prev, pricePerGram: parseFloat(e.target.value) || 0 }))}
+            placeholder="Total Amount *"
+            value={currentOldJewelry.total || ''}
+            onChange={(e) => setCurrentOldJewelry((prev) => ({ ...prev, total: parseFloat(e.target.value) || 0 }))}
           />
           <button type="button" onClick={addOldJewelry} className="add-button">
             Add Item

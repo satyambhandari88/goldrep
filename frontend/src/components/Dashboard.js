@@ -131,7 +131,7 @@ const Dashboard = () => {
     }
 
     return (
-        <div style={{ padding: '24px', maxWidth: '1280px', margin: '0 auto' }}>
+        <div style={{ padding: '34px', maxWidth: '1280px', margin: '0 auto' }}>
             {/* Metal Prices */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 {metalPrices.map((metal, index) => (

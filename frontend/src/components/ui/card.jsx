@@ -1,26 +1,52 @@
-// src/components/ui/card.jsx
 import React from "react";
 
-const Card = ({ className = "", children }) => (
-  <div className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`}>
+const cardStyle = {
+  borderRadius: "0.5rem",
+  border: "1px solid #e2e8f0",
+  backgroundColor: "#ffffff",
+  color: "#1a202c",
+  boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+};
+
+const Card = ({ style = {}, children }) => (
+  <div style={{ ...cardStyle, ...style }}>
     {children}
   </div>
 );
 
-const CardHeader = ({ className = "", children }) => (
-  <div className={`flex flex-col space-y-1.5 p-6 ${className}`}>
+const cardHeaderStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.375rem",
+  padding: "1.5rem",
+};
+
+const CardHeader = ({ style = {}, children }) => (
+  <div style={{ ...cardHeaderStyle, ...style }}>
     {children}
   </div>
 );
 
-const CardTitle = ({ className = "", children }) => (
-  <h3 className={`text-2xl font-semibold leading-none tracking-tight ${className}`}>
+const cardTitleStyle = {
+  fontSize: "1.5rem",
+  fontWeight: "600",
+  lineHeight: "1.25",
+  letterSpacing: "-0.025em",
+};
+
+const CardTitle = ({ style = {}, children }) => (
+  <h3 style={{ ...cardTitleStyle, ...style }}>
     {children}
   </h3>
 );
 
-const CardContent = ({ className = "", children }) => (
-  <div className={`p-6 pt-0 ${className}`}>
+const cardContentStyle = {
+  padding: "1.5rem",
+  paddingTop: "0",
+};
+
+const CardContent = ({ style = {}, children }) => (
+  <div style={{ ...cardContentStyle, ...style }}>
     {children}
   </div>
 );
