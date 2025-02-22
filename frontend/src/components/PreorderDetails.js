@@ -23,7 +23,7 @@ const PreorderDetails = () => {
           throw new Error("No authentication token found");
         }
 
-        const response = await axios.get(`http://localhost:5000/api/preorders/${id}`, {
+        const response = await axios.get(`https://goldrep-1.onrender.com/api/preorders/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -75,7 +75,7 @@ const PreorderDetails = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        `http://localhost:5000/api/preorders/pay/${id}`,
+        `https://goldrep-1.onrender.com/api/preorders/pay/${id}`,
         { amount: parseFloat(paymentAmount) }, // ✅ Ensure it's sent as a number
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -119,7 +119,7 @@ const PreorderDetails = () => {
     }
   
     // ✅ Open invoice with token in URL
-    window.open(`http://localhost:5000/api/preorders/invoice/${id}?token=${token}`, "_blank");
+    window.open(`https://goldrep-1.onrender.com/api/preorders/invoice/${id}?token=${token}`, "_blank");
   };
 
   // Utility function to generate a well-styled detailed PDF
