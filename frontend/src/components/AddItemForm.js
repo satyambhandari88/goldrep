@@ -37,13 +37,13 @@ const AddItemForm = ({ setShowForm, editingItem, onItemAdded }) => {
       if (editingItem) {
         // Send a PUT request to update the item
         response = await axios.put(
-          `http://localhost:5000/api/inventory/update/${editingItem._id}`,
+          `https://goldrep-1.onrender.com/api/inventory/update/${editingItem._id}`,
           requestData,
           config
         );
       } else {
         // Send a POST request to add a new item
-        response = await axios.post("http://localhost:5000/api/inventory/add", requestData, config);
+        response = await axios.post("https://goldrep-1.onrender.com/api/inventory/add", requestData, config);
       }
 
       console.log("✅ Response:", response.data);
