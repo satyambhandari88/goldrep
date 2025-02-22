@@ -111,6 +111,11 @@ const Login = () => {
               >
                 {isLoading ? 'Logging in...' : 'Sign In'}
               </button>
+
+                <div className="register-link">
+                 <p className="register">Don't have an account? <a href="/register">Sign up here</a></p>
+              </div>
+                
             </form>
             
             <div className="support-section">
