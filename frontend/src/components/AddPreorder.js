@@ -121,7 +121,7 @@ const AddPreorder = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/api/preorders", formDataToSend, {
+      await axios.post("https://goldrep-1.onrender.com/api/preorders", formDataToSend, {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
       });
 
