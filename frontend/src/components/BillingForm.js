@@ -46,7 +46,7 @@ const BillingForm = () => {
     const fetchInventoryItems = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/inventory/all', {
+        const response = await axios.get('https://goldrep-1.onrender.com/api/inventory/all', {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         setInventoryItems(response.data);
@@ -271,7 +271,7 @@ const BillingForm = () => {
       });
 
       const billId = response.data.bill._id;
-      const downloadUrl = `http://localhost:5000/api/billing/invoice/${billId}?token=${token}`;
+      const downloadUrl = `https://goldrep-1.onrender.com/api/billing/invoice/${billId}?token=${token}`;
       window.open(downloadUrl, '_blank');
 
       // Reset form after successful submission
