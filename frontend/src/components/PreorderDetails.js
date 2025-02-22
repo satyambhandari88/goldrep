@@ -186,7 +186,7 @@ const downloadPreorderDetailsPDF = () => {
   if (!preorder) return <p>Loading preorder details...</p>;
 
   return (
-    <div>
+    <div className="container">
       <div className="heading">
         <h2>Preorder Details</h2>
         <button onClick={downloadPreorderDetailsPDF} className="download-button">Download PDF</button>
