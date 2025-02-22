@@ -17,7 +17,47 @@ router.use(authMiddleware);
 router.post("/create", async (req, res) => {
   try {
     const billData = { ...req.body, userId: req.user.userId };
-    billData.remainingAmount = billData.grandTotal - billData.paidAmount;
+
+    billData.items.forEach((item) => {
+      if (item.makingChargeType === "perGram") {
+        item.makingCharges = item.makingChargeValue * item.weight;
+      } else {
+        item.makingCharges = (item.makingChargeValue / 100) * (item.pricePerGram * item.weight);
+      }
+      item.total = item.weight * item.pricePerGram + item.makingCharges;
+    });
+
+    if (billData.paymentType === "Full") {
+      billData.status = "Paid";
+      billData.remainingAmount = 0;
+    } else {
+      billData.status = billData.paidAmount > 0 ? "Partial" : "Pending";
+      billData.remainingAmount = billData.grandTotal - billData.paidAmount;
+    }
+    
+    // Update inventory if items were selected from stock
+    for (const item of billData.items) {
+      // Only update inventory if inventoryItemId is provided
+      if (item.inventoryItemId) {
+        const inventoryItem = await Inventory.findById(item.inventoryItemId);
+        
+        if (!inventoryItem) {
+          return res.status(400).json({ error: `Inventory item not found for ${item.itemName}` });
+        }
+        
+        // Check if enough stock is available
+        if (inventoryItem.weight < item.weight) {
+          return res.status(400).json({ 
+            error: `Not enough stock for ${item.itemName}. Available: ${inventoryItem.weight}g, Required: ${item.weight}g` 
+          });
+        }
+        
+        // Update inventory
+        await Inventory.findByIdAndUpdate(item.inventoryItemId, {
+          $inc: { weight: -item.weight }
+        });
+      }
+    }
     
     const bill = new Bill(billData);
     await bill.save();
@@ -220,49 +260,57 @@ router.get("/invoice/:id", async (req, res) => {
     const tableTop = y;
     const headerHeight = 20;
     const rowHeight = 18;
-
+    
     // Reduce table width to 400
     const tableWidth = 400;
-
+    
     // Table header
-    checkPageBreak(headerHeight); // Check if table header fits
+    checkPageBreak(headerHeight);
     doc.rect(20, y, tableWidth, headerHeight).fill(colors.lightBlue);
     doc.rect(20, y, tableWidth, headerHeight).lineWidth(1).stroke(colors.primary);
-
-    // Column headers
+    
+    // Column headers with dynamic making charge header
     doc.font('Helvetica-Bold').fontSize(8)
        .fillColor(colors.primary);
     
     const columns = [
-      { x: 25, w: 70, text: 'CATEGORY' },    // Adjusted width
-      { x: 95, w: 50, text: 'TYPE' },        // Adjusted width
-      { x: 145, w: 50, text: 'WEIGHT (g)' }, // Adjusted width
-      { x: 195, w: 70, text: 'PRICE/g' },    // Adjusted width
-      { x: 265, w: 70, text: 'MAKING/g' },   // Adjusted width
-      { x: 335, w: 70, text: 'TOTAL' }       // Adjusted width
+      { x: 25, w: 70, text: 'CATEGORY' },
+      { x: 95, w: 50, text: 'TYPE' },
+      { x: 145, w: 50, text: 'WEIGHT (g)' },
+      { x: 195, w: 70, text: 'PRICE/g' },
+      { x: 265, w: 70, text: 'MAKING' }, // Generic "MAKING" header
+      { x: 335, w: 70, text: 'TOTAL' }
     ];
-
+    
     columns.forEach(col => {
       doc.text(col.text, col.x, y + 6);
     });
-
+    
     y += headerHeight;
-
+    
     // Table rows with alternating colors
     bill.items.forEach((item, i) => {
-      checkPageBreak(rowHeight); // Check if row fits
+      checkPageBreak(rowHeight);
       if (i % 2 === 0) {
         doc.rect(20, y, tableWidth, rowHeight).fill('#f8f9fa');
       }
       doc.rect(20, y, tableWidth, rowHeight).stroke(colors.primary);
       
+      // Format making charges based on type
+      let makingChargeDisplay;
+      if (item.makingChargeType === 'perGram') {
+        makingChargeDisplay = `${formatNumber(item.makingChargeValue)}/g`;
+      } else {
+        makingChargeDisplay = `${formatNumber(item.makingChargeValue)}%`;
+      }
+    
       doc.font('Helvetica').fontSize(8)
          .fillColor('#000000')
          .text(item.category, columns[0].x, y + 4)
          .text(item.type, columns[1].x, y + 4)
          .text(formatNumber(item.weight), columns[2].x, y + 4)
          .text(formatNumber(item.pricePerGram), columns[3].x, y + 4)
-         .text(formatNumber(item.makingChargesPerGram), columns[4].x, y + 4)
+         .text(makingChargeDisplay, columns[4].x, y + 4)
          .text(formatNumber(item.total), columns[5].x, y + 4);
       y += rowHeight;
     });
@@ -301,7 +349,7 @@ router.get("/invoice/:id", async (req, res) => {
 
     paymentDetails.push(['Grand Total:', `${formatNumber(bill.grandTotal)}`]);
 
-    if (bill.remainingAmount > 0) {
+    if (bill.paymentType === 'Udhaar') {
       paymentDetails.push(
         ['Paid Amount:', `${formatNumber(bill.paidAmount || 0)}`],
         ['Remaining:', `${formatNumber(bill.remainingAmount || 0)}`]

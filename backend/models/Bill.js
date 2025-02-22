@@ -22,7 +22,9 @@ const BillSchema = new mongoose.Schema({
     category: { type: String, required: true },
     weight: { type: Number, required: true },
     pricePerGram: { type: Number, required: true },
-    makingChargesPerGram: { type: Number, required: true },
+    makingChargeType: { type: String, enum: ["perGram", "percentage"], required: true },
+    makingChargeValue: { type: Number, required: true },
+    makingCharges: { type: Number, required: true },
     inventoryItemId: { type: mongoose.Schema.Types.ObjectId, ref: "Inventory" },
     fromInventory: { type: Boolean, default: false },
     total: { type: Number, required: true }
@@ -36,7 +38,6 @@ const BillSchema = new mongoose.Schema({
   oldJewelry: [{
     type: { type: String, enum: ["Gold", "Silver"] },
     weight: { type: Number },
-    pricePerGram: { type: Number},
     total: { type: Number }
   }],
   oldJewelryTotal: { type: Number, default: 0 },
@@ -81,3 +82,11 @@ BillSchema.pre('save', async function(next) {
 });
 
 module.exports = mongoose.model("Bill", BillSchema);
+
+
+
+
+
+
+
+

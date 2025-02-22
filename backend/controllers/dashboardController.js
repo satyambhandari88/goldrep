@@ -84,11 +84,11 @@ const getSalesAnalysis = asyncHandler(async (req, res) => {
     console.log("🔍 Sales Date Range:", start.toISOString(), "to", end.toISOString());
 
     // Fetch and log raw sales data
-    const salesRawData = await Bill.find({
-        userId,
-        date: { $gte: start, $lte: end }
-    }).limit(5);
-    console.log("📜 Sample Sales Data:", salesRawData);
+    // const salesRawData = await Bill.find({
+    //     userId,
+    //     date: { $gte: start, $lte: end }
+    // }).limit(5);
+    // console.log("📜 Sample Sales Data:", salesRawData);
 
     const salesData = await Bill.aggregate([
         {
@@ -136,7 +136,7 @@ const getInventoryAnalysis = asyncHandler(async (req, res) => {
     }
   ]);
 
-  console.log("✅ Inventory Analysis:", inventoryData);
+//   console.log("✅ Inventory Analysis:", inventoryData);
   res.json({ success: true, data: inventoryData });
 });
 
@@ -161,7 +161,7 @@ const getUdhaarAnalysis = asyncHandler(async (req, res) => {
     }
   ]);
 
-  console.log("✅ Udhaar Analysis:", udhaarData);
+//   console.log("✅ Udhaar Analysis:", udhaarData);
   res.json({ success: true, data: udhaarData[0] });
 });
 

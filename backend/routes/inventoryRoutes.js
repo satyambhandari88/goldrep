@@ -10,29 +10,40 @@ router.use(authMiddleware);
 // Add New Inventory Item
 router.post("/add", async (req, res) => {
   try {
-    const { itemName, category, material, karat, weight, thresholdWeight } = req.body;
-    const userId = req.user.userId;
+      console.log("🆔 Extracted User ID:", req.user.userId); // Debugging log
 
-    if (material === "Gold" && ![18, 20, 21, 22, 23, 24].includes(karat)) {
-      return res.status(400).json({ error: "Invalid Gold Karat Value" });
-    }
+      if (!req.user.userId) {
+          return res.status(401).json({ error: "User not authenticated (User ID Missing)" });
+      }
 
-    const newItem = new Inventory({
-      userId,
-      itemName,
-      category,
-      material,
-      karat: material === "Gold" ? karat : undefined,
-      weight,
-      thresholdWeight,
-    });
+      const { itemName, category, material, karat, weight, thresholdWeight } = req.body;
 
-    await newItem.save();
-    res.status(201).json({ message: "Item Added Successfully", item: newItem });
+      const newItem = new Inventory({
+          userId: req.user.userId, // ✅ Now it correctly assigns `userId`
+          itemName,
+          category,
+          material,
+          karat: material === "Gold" ? karat : undefined,
+          weight,
+          thresholdWeight
+      });
+
+      await newItem.save();
+      console.log("✅ Inventory item added:", newItem);
+      res.status(201).json({ success: true, message: "Item added successfully", item: newItem });
+
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
+      console.error("🔥 Error saving inventory:", error);
+      res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 });
+
+
+
+
+
+
+
 
 // View All Items
 router.get("/all", async (req, res) => {

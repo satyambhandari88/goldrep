@@ -28,25 +28,44 @@ router.post("/register", async (req, res) => {
 });
 
 // Login Route
+
+
 router.post("/login", async (req, res) => {
   try {
     const { phone, password } = req.body;
+    
+    console.log("🔹 Login Attempt:", { phone });
 
     // Check if user exists
-    let user = await User.findOne({ phone });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    const user = await User.findOne({ phone });
+    if (!user) {
+      console.log("❌ User not found");
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
 
-    // Check password
+    // Validate password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    if (!isMatch) {
+      console.log("❌ Incorrect password");
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user._id, phone: user.phone }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    // Generate token
+    const token = jwt.sign(
+      { userId: user._id, phone: user.phone },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-    res.json({ token, user: { id: user._id, shopName: user.shopName, ownerName: user.ownerName, phone: user.phone } });
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.log("✅ Login successful:", user.phone);
+    res.json({ token, user });
+
+  } catch (error) {
+    console.error("🔥 Login Error:", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
+
+
 
 module.exports = router;

@@ -78,9 +78,8 @@ router.post("/", upload.fields([{ name: "customerImage" }, { name: "itemImage" }
 // ✅ Get All Preorders
 router.get("/", async (req, res) => {
   try {
-    const preorders = await Preorder.find().lean();
+    const preorders = await Preorder.find({ userId: req.user.userId }).lean(); // ✅ Filter by userId
 
-    // ✅ Convert Decimal128 fields safely
     const formattedPreorders = preorders.map(preorder => ({
       ...preorder,
       totalAmount: preorder.totalAmount ? parseFloat(preorder.totalAmount.toString()) : 0,

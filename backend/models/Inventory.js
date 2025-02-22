@@ -6,12 +6,7 @@ const InventorySchema = new mongoose.Schema({
   itemName: { type: String, required: true },
   category: { type: String, required: true },
   material: { type: String, enum: ["Gold", "Silver"], required: true },
-  karat: { 
-    type: Number, 
-    enum: [18, 20, 21, 22, 23, 24], 
-    required: function () { return this.material === "Gold"; } 
-  },
-  
+  karat: { type: Number, min: 18, max: 24, required: function () { return this.material === "Gold"; } },  
   weight: { type: Number, required: true },
   thresholdWeight: { type: Number, required: true },
   createdAt: { type: Date, default: Date.now }
