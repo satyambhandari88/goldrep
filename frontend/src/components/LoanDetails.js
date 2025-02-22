@@ -33,7 +33,7 @@ const LoanDetails = () => {
         }
 
         console.log("Fetching loan details for ID:", id);
-        const response = await axios.get(`http://localhost:5000/api/loans/${id}`, {
+        const response = await axios.get(`https://goldrep-1.onrender.com/api/loans/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -103,7 +103,7 @@ const LoanDetails = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `http://localhost:5000/api/loans/add-loan/${id}`,
+        `https://goldrep-1.onrender.com/api/loans/add-loan/${id}`,
         { amount: parseFloat(additionalLoanAmount) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -120,7 +120,7 @@ const LoanDetails = () => {
   const handleCompleteLoan = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/loans/complete/${id}`, {}, {
+      await axios.put(`https://goldrep-1.onrender.com/api/loans/complete/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
