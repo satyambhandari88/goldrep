@@ -23,7 +23,7 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", formData);
+      const response = await axios.post("https://goldrep-1.onrender.com/api/auth/login", formData);
       
       // Store token & user in localStorage using authService
       authService.setToken(response.data.token);
