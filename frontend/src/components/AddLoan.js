@@ -114,7 +114,7 @@ const AddLoan = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:5000/api/loans', formDataToSend, {
+      const response = await axios.post('https://goldrep-1.onrender.com/api/loans', formDataToSend, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
