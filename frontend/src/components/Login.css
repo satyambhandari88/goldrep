@@ -370,10 +370,16 @@ input:focus {
     padding: 40px 15px;
   }
   
-  .logo-wrapper {
-    width: 100px;
-    height: 100px;
+   .logo-wrapper {
+    width: 140px;
+    height: 140px;
     margin-bottom: 20px;
+  }
+
+  .logo {
+    max-width: 140px;
+    max-height: 140px;
+    border-radius: 50%;
   }
   
   .brand-name {
