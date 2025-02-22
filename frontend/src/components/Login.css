@@ -26,6 +26,24 @@ html, body {
 }
 
 
+.register{
+  background: none;
+}
+
+
+.register-link a {
+  color: var(--gold-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+
+.register-link a:hover {
+  color: var(--gold-dark);
+  text-decoration: underline;
+}
+
+
 
 
 .login-page {
