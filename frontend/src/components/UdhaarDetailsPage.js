@@ -11,7 +11,7 @@ const UdhaarDetailsPage = () => {
   const fetchUdhaarDetails = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`http://localhost:5000/api/udhaar/${phone}`, {
+      const response = await axios.get(`https://goldrep-1.onrender.com/api/udhaar/${phone}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUdhaarDetails(response.data);
@@ -60,7 +60,7 @@ const UdhaarDetailsPage = () => {
         return;
     }
 
-    const invoiceUrl = `http://localhost:5000/api/billing/invoice/${billId}?token=${token}`;
+    const invoiceUrl = `https://goldrep-1.onrender.com/api/billing/invoice/${billId}?token=${token}`;
     
     window.open(invoiceUrl, "_blank"); // ✅ Opens the invoice in a new tab with token
 };
