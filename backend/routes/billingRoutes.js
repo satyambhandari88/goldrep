@@ -18,6 +18,15 @@ router.post("/create", async (req, res) => {
   try {
     const billData = { ...req.body, userId: req.user.userId };
 
+    billData.items = billData.items.map(item => {
+      // Remove inventoryItemId if it's empty or null
+      if (!item.inventoryItemId) {
+        const { inventoryItemId, ...cleanedItem } = item;
+        return cleanedItem;
+      }
+      return item;
+    });
+
     billData.items.forEach((item) => {
       if (item.makingChargeType === "perGram") {
         item.makingCharges = item.makingChargeValue * item.weight;
