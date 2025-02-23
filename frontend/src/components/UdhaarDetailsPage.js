@@ -71,7 +71,7 @@ const UdhaarDetailsPage = () => {
   if (!udhaarDetails) return <p>Loading...</p>;
 
   return (
-    <div className="container">
+    <div className="container" style={{ marginTop: "50px" , padding:"20px"}}>
       <h2>Udhaar Details</h2>
       <div className="customer-info">
         <p><strong>Customer:</strong> {udhaarDetails.customerName}</p>
