@@ -54,15 +54,11 @@ const Navbar = () => {
 
         {/* Show Login if not authenticated, Logout if authenticated */}
         <li>
-          
-            <button 
-              className="logout-btn" 
-              onClick={handleLogout}
-              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-            >
-              Logout
-            </button>
-          
+          {isAuthenticated ? (
+            <Link className="logout-btn" onClick={handleLogout}>Logout</Link>
+          ) : (
+            <Link to="/login" onClick={() => setMenuOpen(false)}>Login</Link>
+          )}
         </li>
       </ul>
     </nav>
