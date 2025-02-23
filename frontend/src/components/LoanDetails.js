@@ -212,7 +212,7 @@ const LoanDetails = () => {
   }
 
   return (
-    <div className="loan-details-container">
+    <div className="loan-details-container" style={{ marginTop: "50px" , padding:"20px"}}>
       <h2>Loan Details</h2>
 
       <button onClick={downloadLoanDetailsPDF} className="download-button">
