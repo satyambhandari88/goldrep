@@ -35,7 +35,7 @@ const UdhaarDetailsPage = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        `http://localhost:5000/api/udhaar/pay/${phone}`,
+        `https://goldrep-1.onrender.com/api/udhaar/pay/${phone}`,
         { amount: parseFloat(paymentAmount) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
