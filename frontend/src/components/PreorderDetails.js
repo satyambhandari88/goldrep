@@ -96,7 +96,7 @@ const PreorderDetails = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:5000/api/preorders/complete/${id}`,
+        `https://goldrep-1.onrender.com/api/preorders/complete/${id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
