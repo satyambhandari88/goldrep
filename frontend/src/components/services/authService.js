@@ -28,7 +28,7 @@ const getUser = () => {
 // Logout function
 const logout = () => {
   removeToken();
-  window.location.href = "/login"; // Redirect to login page after logout
+  
 };
 
 export const authService = {
