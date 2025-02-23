@@ -10,9 +10,18 @@ const Navbar = () => {
   const isAuthenticated = authService.isAuthenticated();
   const user = authService.getUser();
 
-  const handleLogout = () => {
-    authService.logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      // Force a page reload to clear any cached states
+      window.location.href = '/login';
+      // Alternative approach using navigate:
+      // navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still redirect to login even if there's an error
+      window.location.href = '/login';
+    }
   };
 
   return (
