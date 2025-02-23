@@ -80,7 +80,7 @@ const LoanDetails = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `http://localhost:5000/api/loans/pay/${id}`,
+        `https://goldrep-1.onrender.com/api/loans/pay/${id}`,
         { amount: parseFloat(paymentAmount) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
