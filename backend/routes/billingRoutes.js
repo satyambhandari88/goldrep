@@ -136,7 +136,7 @@ if (bill.paymentType === "Udhaar") {
 
 router.get("/invoice/:id", async (req, res) => {
   try {
-    // Authentication checks
+    // Authentication checks remain the same
     let token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) token = req.query.token;
     if (!token) return res.status(401).json({ error: "Authentication required" });
@@ -149,12 +149,12 @@ router.get("/invoice/:id", async (req, res) => {
 
     if (!bill) return res.status(404).json({ error: "Bill not found" });
 
-    // Validation checks
+    // Validation checks remain the same
     if (!bill.items?.length || !bill.customerName || !bill.customerPhone) {
       return res.status(400).json({ error: "Invalid bill data" });
     }
 
-    // Format number function
+    // Format number function remains the same
     const formatNumber = (num) => {
       if (typeof num === 'string' && num.includes('e')) {
         num = parseFloat(num);
@@ -166,52 +166,56 @@ router.get("/invoice/:id", async (req, res) => {
       }).format(num);
     };
 
-    // Colors
+    // Colors remain the same
     const colors = {
-      primary: '#1e3799',    // Deep Blue
-      secondary: '#e84118',  // Bright Red
+      primary: '#1e3799',
+      secondary: '#e84118',
       headerBg: '#f1f2f6',
       lightBlue: '#c8d6e5',
       lightRed: '#ff7675'
     };
 
-    // Calculate totals
+    // Calculate totals remain the same
     bill.subtotal = bill.subtotal || bill.items.reduce((sum, item) => sum + (item.total || 0), 0);
     bill.igst = bill.isGSTBill ? bill.subtotal * 0.015 : 0;
     bill.sgst = bill.isGSTBill ? bill.subtotal * 0.015 : 0;
     bill.grandTotal = bill.subtotal + bill.igst + bill.sgst - (bill.discount || 0) - (bill.oldJewelryTotal || 0);
 
-    // Create PDF document
-    const doc = new PDFDocument({ size: [595, 421], margin: 20 }); // Half A4 size
+    // Calculate dynamic page height based on number of items
+    const baseHeight = 421; // Base height (half A4)
+    const itemHeight = 18; // Height per item
+    const headerHeight = 175; // Total height of header sections
+    const footerHeight = 40; // Height of footer section
+    const minHeight = baseHeight;
+    
+    // Calculate required height for all content
+    const requiredHeight = headerHeight + (bill.items.length * itemHeight) + footerHeight;
+    const pageHeight = Math.max(minHeight, requiredHeight);
+
+    // Create PDF document with dynamic height
+    const doc = new PDFDocument({ 
+      size: [595, pageHeight],
+      margin: 20,
+      autoFirstPage: false
+    });
+
+    // Add first page with calculated dimensions
+    doc.addPage({
+      size: [595, pageHeight],
+      margin: 20
+    });
+
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=${bill.isGSTBill ? `invoice-${bill.billNumber}` : 'receipt'}.pdf`);
     doc.pipe(res);
 
-    // Track y-position
     let y = 20; // Initial y-position
 
-    // Function to add a new page
-    const addNewPage = () => {
-      doc.addPage({ size: [595, 421], margin: 20 }); // Add a new half A4 page
-      y = 20; // Reset y-position for the new page
-    };
-
-    // Function to check if content exceeds page height
-    const checkPageBreak = (height) => {
-      if (y + height > 401) { // 421 (page height) - 20 (bottom margin)
-        addNewPage();
-      }
-    };
-
-    // Header with color scheme
-    checkPageBreak(60); // Check if header fits
-
-    // Shop name with color
+    // Header section remains the same
     doc.fontSize(20).font('Helvetica-Bold')
        .fillColor(colors.primary)
        .text(bill.userId.shopName, 30, y + 2, { align: "center" });
 
-    // Contact details
     doc.fontSize(8).font('Helvetica')
        .fillColor(colors.secondary);
     
@@ -222,19 +226,16 @@ router.get("/invoice/:id", async (req, res) => {
     doc.text(bill.userId.address, { align: "center" })
        .text(`Phone: ${bill.userId.phone}`, { align: "center" });
 
-    y += 70; // Move y-position after header
+    y += 70;
 
-    // Document type header with gradient
-    checkPageBreak(25); // Check if document header fits
+    // Document type header
     doc.rect(20, y, 555, 25).fill(colors.headerBg);
     doc.rect(20, y, 555, 25).lineWidth(1).stroke(colors.primary);
     
-    // Document title with styling
     doc.fontSize(9).font('Helvetica-Bold')
        .fillColor(colors.primary)
        .text(bill.isGSTBill ? 'TAX INVOICE' : 'CASH MEMO', 30, y + 8);
 
-    // Bill details
     if (bill.isGSTBill) {
       doc.fontSize(9).font('Helvetica')
          .fillColor(colors.secondary)
@@ -243,75 +244,60 @@ router.get("/invoice/:id", async (req, res) => {
     
     doc.text(`Date: ${new Date(bill.date).toLocaleDateString('en-IN')}`, 400, y + 12);
 
-    y += 35; // Move y-position after document header
+    y += 35;
 
     // Customer Details section
-    checkPageBreak(50); // Check if customer details fit
     doc.rect(20, y, 555, 50).lineWidth(1).stroke(colors.primary);
-    
-    // Customer header
     doc.rect(20, y, 555, 20).fill(colors.lightBlue);
     
     doc.fontSize(10).font('Helvetica-Bold')
        .fillColor(colors.primary)
        .text('CUSTOMER DETAILS', 30, y + 8);
 
-    // Customer information
     doc.fontSize(9).font('Helvetica')
        .fillColor('#000000')
        .text(`Name: ${bill.customerName}`, 30, y + 25)
        .text(`Phone: ${bill.customerPhone}`, 280, y + 30)
        .text(`Address: ${bill.customerAddress || ''}`, 30, y + 40);
 
-    y += 60; // Move y-position after customer details
+    y += 60;
 
-    // Items Table
+    // Items Table with fixed width
     const tableTop = y;
-    const headerHeight = 20;
-    const rowHeight = 18;
-    
-    // Reduce table width to 400
     const tableWidth = 400;
     
     // Table header
-    checkPageBreak(headerHeight);
-    doc.rect(20, y, tableWidth, headerHeight).fill(colors.lightBlue);
-    doc.rect(20, y, tableWidth, headerHeight).lineWidth(1).stroke(colors.primary);
-    
-    // Column headers with dynamic making charge header
-    doc.font('Helvetica-Bold').fontSize(8)
-       .fillColor(colors.primary);
+    doc.rect(20, y, tableWidth, 20).fill(colors.lightBlue);
+    doc.rect(20, y, tableWidth, 20).lineWidth(1).stroke(colors.primary);
     
     const columns = [
       { x: 25, w: 70, text: 'CATEGORY' },
       { x: 95, w: 50, text: 'TYPE' },
       { x: 145, w: 50, text: 'WEIGHT (g)' },
       { x: 195, w: 70, text: 'PRICE/g' },
-      { x: 265, w: 70, text: 'MAKING' }, // Generic "MAKING" header
+      { x: 265, w: 70, text: 'MAKING' },
       { x: 335, w: 70, text: 'TOTAL' }
     ];
+    
+    doc.font('Helvetica-Bold').fontSize(8)
+       .fillColor(colors.primary);
     
     columns.forEach(col => {
       doc.text(col.text, col.x, y + 6);
     });
     
-    y += headerHeight;
+    y += 20;
     
-    // Table rows with alternating colors
+    // Table rows
     bill.items.forEach((item, i) => {
-      checkPageBreak(rowHeight);
       if (i % 2 === 0) {
-        doc.rect(20, y, tableWidth, rowHeight).fill('#f8f9fa');
+        doc.rect(20, y, tableWidth, itemHeight).fill('#f8f9fa');
       }
-      doc.rect(20, y, tableWidth, rowHeight).stroke(colors.primary);
+      doc.rect(20, y, tableWidth, itemHeight).stroke(colors.primary);
       
-      // Format making charges based on type
-      let makingChargeDisplay;
-      if (item.makingChargeType === 'perGram') {
-        makingChargeDisplay = `${formatNumber(item.makingChargeValue)}/g`;
-      } else {
-        makingChargeDisplay = `${formatNumber(item.makingChargeValue)}%`;
-      }
+      let makingChargeDisplay = item.makingChargeType === 'perGram' 
+        ? `${formatNumber(item.makingChargeValue)}/g`
+        : `${formatNumber(item.makingChargeValue)}%`;
     
       doc.font('Helvetica').fontSize(8)
          .fillColor('#000000')
@@ -321,24 +307,20 @@ router.get("/invoice/:id", async (req, res) => {
          .text(formatNumber(item.pricePerGram), columns[3].x, y + 4)
          .text(makingChargeDisplay, columns[4].x, y + 4)
          .text(formatNumber(item.total), columns[5].x, y + 4);
-      y += rowHeight;
+      
+      y += itemHeight;
     });
 
-    // Old Jewelry Exchange Section
-   
-    // Payment Summary
-    checkPageBreak(100); // Check if payment summary fits
-    const summaryY = tableTop; // Align with the top of the tables
-    const summaryWidth = 160; // Width of the payment summary section
-    const summaryX = 20 + tableWidth + 10; // Position beside the tables
+    // Payment Summary (aligned with items table)
+    const summaryWidth = 160;
+    const summaryX = 20 + tableWidth + 10;
 
-    doc.rect(summaryX, summaryY, summaryWidth, 123).stroke(colors.primary);
-
-    // Summary header
-    doc.rect(summaryX, summaryY, summaryWidth, 20).fill(colors.lightBlue);
+    doc.rect(summaryX, tableTop, summaryWidth, 123).stroke(colors.primary);
+    doc.rect(summaryX, tableTop, summaryWidth, 20).fill(colors.lightBlue);
+    
     doc.fontSize(10).font('Helvetica-Bold')
        .fillColor(colors.primary)
-       .text('PAYMENT SUMMARY', summaryX + 10, summaryY + 5);
+       .text('PAYMENT SUMMARY', summaryX + 10, tableTop + 5);
 
     const paymentDetails = [
       ['Subtotal:', `${formatNumber(bill.subtotal)}`],
@@ -368,7 +350,7 @@ router.get("/invoice/:id", async (req, res) => {
     // Draw payment details
     paymentDetails.forEach((row, i) => {
       const isTotal = i === paymentDetails.length - 1;
-      const yPos = summaryY + 25 + (i * 15);
+      const yPos = tableTop + 25 + (i * 15);
       
       if (isTotal) {
         doc.rect(summaryX + 5, yPos - 5, summaryWidth - 10, 20).fill(colors.lightBlue);
@@ -381,24 +363,23 @@ router.get("/invoice/:id", async (req, res) => {
          .text(row[1], summaryX + summaryWidth - 60, yPos);
     });
 
-    y += 135; // Move y-position after payment summary
-
-    // Footer
-    checkPageBreak(20); // Check if footer fits
+    // Footer (at the bottom of the page)
+    const footerY = pageHeight - footerHeight -5;
+    
     doc.fontSize(8)
        .fillColor(colors.primary)
-       .text('Thank you for your business!', 20, y, { align: 'center' });
+       .text('Thank you for your business!', 20, footerY, { align: 'center' });
 
     if (bill.remainingAmount > 0) {
       doc.fontSize(7)
          .fillColor(colors.secondary)
          .text('This is a credit bill. Please clear the remaining amount as per agreed terms.', 
-               { align: 'center' });
+               20, footerY + 8, { align: 'center' });
     }
 
     doc.fontSize(6)
        .fillColor(colors.primary)
-       .text('Terms and conditions apply.', { align: 'center' });
+       .text('This is a digital bill generated by GOLDREP (Reporev Technologies Pvt. Ltd.)', 20, footerY + 16, { align: 'center' });
 
     doc.end();
   } catch (error) {
@@ -406,11 +387,5 @@ router.get("/invoice/:id", async (req, res) => {
     return res.status(500).json({ error: "Failed to generate invoice", details: error.message });
   }
 });
-
-
-
-
-
-
 
 module.exports = router;
