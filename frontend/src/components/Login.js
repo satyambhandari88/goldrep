@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , Link} from "react-router-dom";
 import axios from "axios";
 import { authService } from "./services/authService";
-import "./Login.css";
+import "./Login.css"; 
 
 import K from "./k.png";
 
-const Login = ({ setIsAuthenticated }) => { // Destructure setIsAuthenticated from props
+const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     phone: "",
@@ -24,15 +24,10 @@ const Login = ({ setIsAuthenticated }) => { // Destructure setIsAuthenticated fr
     setIsLoading(true);
     try {
       const response = await axios.post("http://localhost:5000/api/auth/login", formData);
-
+      
       // Store token & user in localStorage using authService
       authService.setToken(response.data.token);
       authService.setUser(response.data.user);
-
-      // Notify parent component (App.js) that authentication status has changed
-      if (setIsAuthenticated) {
-        setIsAuthenticated(true); // Call setIsAuthenticated to update the state in App.js
-      }
 
       navigate("/dashboard"); // Redirect to dashboard
     } catch (error) {
@@ -43,24 +38,33 @@ const Login = ({ setIsAuthenticated }) => { // Destructure setIsAuthenticated fr
   };
 
   return (
+    
     <div className="login-page">
       <div className="bg-pattern"></div>
       <div className="login-content">
-        <div className="brand-container">
-          <div className="logo-wrapper">
-            <img src={K} alt="New Logo" className="logo" />
-          </div>
-          <h1 className="brand-name">GOLDREP</h1>
-          <p className="brand-tagline">Premium Goldsmith Shop Management Software</p>
-          <p className="company-name">by Reporev Technologies Pvt. Ltd.</p>
-          <p>Exclusive Trading Partner: Purilyser</p>
-        </div>
+      <div className="brand-container">
+  {/* Moved logo to the top */}
+  <div className="logo-wrapper">
+    <img src= {K} alt="New Logo" className="logo" />
+  </div>
+  
+  <h1 className="brand-name">GOLDREP</h1>
+  
+  {/* New logo in place of the old one */}
+
+  
+  <p className="brand-tagline">Premium Goldsmith Shop Management Software</p>
+  <p className="company-name">by Reporev Technologies Pvt. Ltd.</p>
+    <p>Exclusive Trading Partner: Purilyser</p>
+  
+</div>
+
 
         <div className="login-form-wrapper">
           <div className="login-form-container">
             <h2>Welcome Back</h2>
             <p className="login-subtitle">Log in to manage your goldsmith business</p>
-
+            
             {error && <div className="error-message">{error}</div>}
 
             <form onSubmit={handleSubmit} className="login-form">
@@ -100,8 +104,8 @@ const Login = ({ setIsAuthenticated }) => { // Destructure setIsAuthenticated fr
                 <a href="/forgot-password">Forgot Password?</a>
               </div>
 
-              <button
-                type="submit"
+              <button 
+                type="submit" 
                 className="login-button"
                 disabled={isLoading}
               >
@@ -109,10 +113,11 @@ const Login = ({ setIsAuthenticated }) => { // Destructure setIsAuthenticated fr
               </button>
 
               <div className="register-link">
-                <p className="register">Don't have an account? <a href="/register">Sign up here</a></p>
+                 <p className="register">Don't have an account? <Link to="/register">Sign up here</Link></p>
               </div>
-            </form>
 
+            </form>
+            
             <div className="support-section">
               <p className="login-subtitle">Need help? Contact our support team</p>
               <a href="mailto:support@reporevtech.com" className="support-link">support@reporevtech.com</a>
@@ -120,7 +125,7 @@ const Login = ({ setIsAuthenticated }) => { // Destructure setIsAuthenticated fr
           </div>
         </div>
       </div>
-
+      
       <footer className="login-footer">
         <p className="login-subtitle">© {new Date().getFullYear()} Reporev Technologies Pvt. Ltd. All rights reserved.</p>
         <div className="footer-links">
@@ -130,6 +135,7 @@ const Login = ({ setIsAuthenticated }) => { // Destructure setIsAuthenticated fr
         </div>
       </footer>
     </div>
+    
   );
 };
 
