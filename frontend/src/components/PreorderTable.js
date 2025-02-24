@@ -116,7 +116,7 @@ const downloadPreorderPDF = () => {
 
                 <td>
                   <button onClick={() => navigate(`/preorder/${order._id}`)}>View</button>
-                  <button onClick={() => navigate(`/preorder/edit/${order._id}`)}>Edit</button>
+                  // <button onClick={() => navigate(`/preorder/edit/${order._id}`)}>Edit</button>
                   <button onClick={() => handleDelete(order._id)}>Delete</button>
                 </td>
               </tr>
