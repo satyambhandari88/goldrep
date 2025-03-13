@@ -48,7 +48,7 @@ const BillingForm = () => {
     const fetchInventoryItems = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/inventory/all', {
+        const response = await axios.get('https://goldrep-1.onrender.com/api/inventory/all', {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         setInventoryItems(response.data);
@@ -247,12 +247,12 @@ const BillingForm = () => {
 
     try {
       console.log("Sending bill data to server:", billData);
-      const response = await axios.post('http://localhost:5000/api/billing/create', billData, {
+      const response = await axios.post('https://goldrep-1.onrender.com/api/billing/create', billData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const billId = response.data.bill._id;
-      const previewUrl = `http://localhost:5000/api/billing/invoice/${billId}?token=${token}`;
+      const previewUrl = `https://goldrep-1.onrender.com/api/billing/invoice/${billId}?token=${token}`;
 
       // Fetch the preview data
       const previewResponse = await axios.get(previewUrl, {
