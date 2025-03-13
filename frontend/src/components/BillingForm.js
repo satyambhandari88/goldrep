@@ -7,8 +7,8 @@ const BillingForm = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [previewData, setPreviewData] = useState(null); // State to hold preview data
-  const [showPreview, setShowPreview] = useState(false); // State to control preview modal
+  const [previewData, setPreviewData] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const [formData, setFormData] = useState({
     customerName: '',
@@ -48,7 +48,7 @@ const BillingForm = () => {
     const fetchInventoryItems = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('https://goldrep-1.onrender.com/api/inventory/all', {
+        const response = await axios.get('http://localhost:5000/api/inventory/all', {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         setInventoryItems(response.data);
@@ -247,12 +247,12 @@ const BillingForm = () => {
 
     try {
       console.log("Sending bill data to server:", billData);
-      const response = await axios.post('https://goldrep-1.onrender.com/api/billing/create', billData, {
+      const response = await axios.post('http://localhost:5000/api/billing/create', billData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const billId = response.data.bill._id;
-      const previewUrl = `https://goldrep-1.onrender.com/api/billing/invoice/${billId}?token=${token}`;
+      const previewUrl = `http://localhost:5000/api/billing/invoice/${billId}?token=${token}`;
 
       // Fetch the preview data
       const previewResponse = await axios.get(previewUrl, {
@@ -291,6 +291,18 @@ const BillingForm = () => {
         iframe.contentWindow.print();
         document.body.removeChild(iframe);
       };
+    }
+  };
+
+  // Add this function to handle the download
+  const handleDownload = () => {
+    if (previewData) {
+      const link = document.createElement('a');
+      link.href = previewData;
+      link.download = 'bill.pdf'; // You can customize the filename here
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -531,6 +543,7 @@ const BillingForm = () => {
           <div className="preview-content">
             <iframe src={previewData} width="100%" height="500px"></iframe>
             <button onClick={handlePrint}>Print Bill</button>
+            <button onClick={handleDownload}>Download Bill</button> {/* New button */}
             <button onClick={() => setShowPreview(false)}>Close</button>
           </div>
         </div>
