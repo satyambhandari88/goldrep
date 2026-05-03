@@ -18,7 +18,7 @@ const app = express();
 // Middleware
 
 app.use(cors({
-    origin: "https://www.goldrep.shop",
+    origin: "https://rkhl.shop",
     methods: "GET,POST,PUT,DELETE",
     credentials: true
 }));
