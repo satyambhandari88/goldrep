@@ -18,7 +18,7 @@ const app = express();
 // Middleware
 
 app.use(cors({
-    origin: "https://goldrep-2.onrender.com",
+    origin: "https://goldrep-1.onrender.com",
     
     methods: "GET,POST,PUT,DELETE",
     credentials: true
